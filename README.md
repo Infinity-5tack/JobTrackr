@@ -10,7 +10,7 @@ JobTrackr helps users manage, track, and optimize their job hunt using AI-genera
 
 ## 🧱 Architecture
 
-<img src="./JobTrackr_Architecture.png" alt="JobTrackr Poster" width="100%" />
+<img src="./JobTrackr_Architecture.png" alt="JobTrackr Poster" width="80%" />
 
 ---
 
@@ -37,6 +37,18 @@ JobTrackr helps users manage, track, and optimize their job hunt using AI-genera
 | Database    | MySQL on Azure                   |
 | Cloud       | Azure (App Service, DB)          |
 | DevOps      | GitHub Actions + Docker          |
+
+---
+
+## Team Members
+
+| Name                   | Role                           |
+|------------------------|--------------------------------|
+| **Poonam Agarwal**     | Backend Developer (Auth, APIs) |
+| **Dhairya Soni**       | Resume Generator, DB Mapping   |
+| **Krishna Katira**     | Frontend Lead, UI/UX           |
+| **Smriti Banjade**     | Cover Letter & Job Search UI   |
+| **Ishan Sohal**        | DevOps & Cloud Deployment      |
 
 ---
 
