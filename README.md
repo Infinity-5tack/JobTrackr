@@ -10,7 +10,7 @@ JobTrackr helps users manage, track, and optimize their job hunt using AI-genera
 
 ## 🧱 Architecture
 
-<img src="./JobTrackr_Architecture.png" alt="JobTrackr Poster" width="80%" />
+<img src="./JobTrackr_Architecture.png" alt="JobTrackr Poster" width="60%" />
 
 ---
 
