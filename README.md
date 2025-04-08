@@ -8,6 +8,19 @@ JobTrackr helps users manage, track, and optimize their job hunt using AI-genera
 
 ---
 
+## 🧱 Architecture
+
+<img src="./POSTER.pdf" alt="JobTrackr+ Architecture Poster" width="100%" />
+
+> ⚠️ GitHub does **not** render PDF files directly as images. To embed it visually, you need to:
+> ✅ Convert your `POSTER.pdf` into an image (PNG or JPG)  
+> ✅ Save it as `./assets/poster.png`  
+> ✅ Then update the embed to:
+
+<img src="./assets/poster.png" alt="JobTrackr+ Poster" width="100%" />
+
+---
+
 ## 🧩 Features
 
 - 🔐 Secure sign-up, login, and password reset with OTP
@@ -48,4 +61,5 @@ JobTrackr helps users manage, track, and optimize their job hunt using AI-genera
 │   └── index.js
 ├── Dockerfile (Frontend + Backend)
 └── README.md
+
 
