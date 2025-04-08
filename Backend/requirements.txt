@@ -1,0 +1,8 @@
+Flask
+flask_cors
+mysql-connector-python
+flask_jwt_extended
+python-dotenv
+requests 
+openai
+email_validator
