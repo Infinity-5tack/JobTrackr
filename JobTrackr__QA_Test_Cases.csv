@@ -1,0 +1,22 @@
+Test Case ID,Title,Steps,Expected Result,Status,Notes
+TC001,Sign Up with valid details,Enter all required fields correctly,"Account created, redirected to dashboard",Pass,Password validation enforced
+TC002,Sign Up with missing fields,Leave email blank,Error message: 'Email is required',Pass,Password validation enforced
+TC003,Sign In with correct credentials,Enter valid email and password,"Login successful, redirected to dashboard",Pass,
+TC004,Sign In with invalid credentials,Enter wrong password,Error: Invalid credentials,Pass,
+TC005,Password Reset Flow,"Request OTP, enter OTP, reset password",Password reset success message,Pass,UI flow works as expected
+TC006,Create Profile with valid data,Fill all sections in multi-step form,Profile saved successfully,Pass,
+TC007,View Profile after login,Navigate to View Profile,Profile data is displayed correctly,Pass,
+TC008,Add New Job Manually,Fill job form and submit,Job is added to tracker,Pass,
+TC009,Edit Job Status,Update job to 'Interview',Status updates correctly,Pass,Duplicate check working
+TC010,Delete Job Entry,Click delete icon on job card,Job is removed from tracker,Pass,
+TC011,Generate Resume from Job Description,Paste JD and click Generate,AI-generated resume displayed,Pass,
+TC012,Download Resume as PDF,Click 'Download PDF',PDF downloads with content,Pass,Long resumes paginate properly
+TC013,Generate Cover Letter,Paste JD and generate,Cover letter displayed,Pass,
+TC014,View Personal Analytics,Click Analytics from sidebar,Charts display user job data,Pass,
+TC015,View Community Analytics,Click General Analytics,Community job stats shown,Pass,Matches with backend data
+TC016,Search Jobs via Adzuna,"Select country, enter keyword",Jobs list loads from Adzuna,Pass,
+TC017,Search Jobs via Jooble,Enter keyword and submit,Jooble jobs load correctly,Pass,
+TC018,Search company socials using Scrapetable,Enter URLs and submit,Email/socials retrieved,Pass,Validated CORS & token use
+TC019,Access Dashboard without login,Open /dashboard directly,Redirected to /login,Pass,
+TC020,Session persistence after login,Refresh browser,Still logged in,Pass,
+TC021,API Auth (Backend),Call /getProfile without JWT,401 Unauthorized,Pass,Secured
