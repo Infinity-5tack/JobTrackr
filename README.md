@@ -44,10 +44,10 @@ JobTrackr helps users manage, track, and optimize their job hunt using AI-genera
 
 | Name                   | Role                           |
 |------------------------|--------------------------------|
-| **Poonam Agarwal**     | Backend Developer (Auth, APIs) |
-| **Dhairya Soni**       | Resume Generator, DB Mapping   |
-| **Krishna Katira**     | Frontend Lead, UI/UX           |
-| **Smriti Banjade**     | Cover Letter & Job Search UI   |
+| **Poonam Agarwal**     | Backend Developer              |
+| **Dhairya Soni**       | Backend Developer              |
+| **Krishna Katira**     | Frontend Developer             |
+| **Smriti Banjade**     | Frontend Developer             |
 | **Ishan Sohal**        | DevOps & Cloud Deployment      |
 
 ---
