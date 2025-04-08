@@ -52,19 +52,40 @@ JobTrackr helps users manage, track, and optimize their job hunt using AI-genera
 
 ---
 
+## ✅ Testing
+
+- 🧪 **Manual Testing**: Every user flow was tested manually — including sign-up, login, profile creation, job tracking, analytics, and AI features.
+- 📬 **API Testing**: Postman was used to rigorously test all backend endpoints, including auth, profile, job tracking, and analytics.
+- 🧾 [Click here to view API QA Test Cases (CSV)](./JobTrackr__QA_Test_Cases.csv)
+- 🧪 [Functional Manual Test Cases](./TEST_CASES.md)
+
+---
+
 ## 📁 Project Structure
 
 ```bash
-├── backend/
+├── Backend/
 │   ├── app.py
 │   ├── run.py
+│   ├── requirements.txt
 │   └── tables.sql
-├── frontend/
-│   ├── src/components/
-│   ├── src/pages/
-│   ├── App.js
-│   └── index.js
-├── Dockerfile (Frontend + Backend)
+│
+├── Frontend/
+│   ├── public/
+│   ├── src/api
+        ├── /api
+        ├── /components
+        ├── /pages
+│   └── tailwind.config.js
+│
+├── Cloud/
+│   ├── backend/
+│   └── frontend/
+│
+├── JobTrackr_Architecture.png
+├── JobTrackr__QA_Test_Cases.csv
+├── TEST_CASES.md
 └── README.md
+
 
 
