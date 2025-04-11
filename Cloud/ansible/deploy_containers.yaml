@@ -1,0 +1,83 @@
+- name: Deploy Docker Containers and Initialize Database Schema
+  hosts: all
+  become: yes
+  vars:
+    mysql_server_fqdn: "{{ MYSQL_SERVER_FQDN }}"
+    db_user: "{{ DB_USER }}"
+    db_password: "{{ DB_PASSWORD }}"
+    db_name: "jobapplicationtracker"
+    app_key: "{{ APP_KEY }}"
+    jooble_api_key: "{{ JOOBLE_API_KEY }}"
+    jooble_host: "{{ JOOBLE_HOST }}"
+    openai_api_key: "{{ OPENAI_API_KEY }}"
+    acr_login_server: "{{ ACR_LOGIN_SERVER }}"
+    acr_username: "{{ ACR_USERNAME }}"
+    acr_password: "{{ ACR_PASSWORD }}"
+    react_app_scrapetable_api_key: "{{ REACT_APP_SCRAPETABLE_API_KEY }}"
+
+  tasks:
+    - name: Log in to ACR using Admin Credentials
+      ansible.builtin.shell: echo "{{ acr_password }}" | docker login {{ acr_login_server }} -u {{ acr_username }} --password-stdin
+
+    - name: Copy database schema file to backend
+      copy:
+        src: "{{ playbook_dir }}/tables.sql"
+        dest: "/tmp/tables.sql"
+      when: inventory_hostname in groups['backend']
+
+    - name: Ensure MySQL Database Exists
+      ansible.builtin.shell: |
+        mysql -h {{ mysql_server_fqdn }} -P 3306 -u {{ db_user }} -p{{ db_password }} -e "CREATE DATABASE IF NOT EXISTS {{ db_name }} CHARACTER SET utf8 COLLATE utf8_general_ci;"
+      args:
+        executable: /bin/bash
+      when: inventory_hostname in groups['backend']
+      run_once: true
+
+    - name: Import Database Schema if Not Already Imported
+      ansible.builtin.shell: |
+        if ! mysql -h {{ mysql_server_fqdn }} -P 3306 -u {{ db_user }} -p{{ db_password }} -e "USE {{ db_name }}; SHOW TABLES;" | grep -q "users"; then
+          mysql -h {{ mysql_server_fqdn }} -P 3306 -u {{ db_user }} -p{{ db_password }} {{ db_name }} < /tmp/tables.sql
+        fi
+      args:
+        executable: /bin/bash
+      when: inventory_hostname in groups['backend']
+      run_once: true
+
+    - name: Pull & Run Backend Container on backend
+      ansible.builtin.shell: |
+        docker pull {{ acr_login_server }}/jobtrack-backend:latest
+        docker stop backend || true
+        docker rm backend || true
+        docker run -d --name backend -p 5000:5000 \
+          -e DB_HOST="{{ mysql_server_fqdn }}" \
+          -e DB_USER="{{ db_user }}" \
+          -e DB_PASSWORD="{{ db_password }}" \
+          -e DB_NAME="{{ db_name }}" \
+          -e APP_KEY="{{ app_key }}" \
+          -e JOOBLE_API_KEY="{{ jooble_api_key }}" \
+          -e JOOBLE_HOST="{{ jooble_host }}" \
+          -e OPENAI_API_KEY="{{ openai_api_key }}" \
+          -e REACT_APP_SCRAPETABLE_API_KEY="{{ react_app_scrapetable_api_key }}" \
+          {{ acr_login_server }}/jobtrack-backend:latest
+      when: inventory_hostname in groups['backend']
+
+    - name: Verify Backend Container is Running
+      ansible.builtin.shell: |
+        sleep 5
+        docker ps | grep backend || (echo "Backend container failed! Restarting..." && docker restart backend)
+      when: inventory_hostname in groups['backend']
+
+    - name: Pull & Run Frontend Container on frontend
+      ansible.builtin.shell: |
+        docker pull {{ acr_login_server }}/jobtrack-frontend:latest
+        docker stop frontend || true
+        docker rm frontend || true
+        docker run -d --name frontend -p 80:3000 {{ acr_login_server }}/jobtrack-frontend:latest
+      when: inventory_hostname in groups['frontend']
+
+    - name: Verify Frontend Container is Running
+      ansible.builtin.shell: |
+        sleep 5
+        docker ps | grep frontend || (echo "Frontend container failed! Restarting..." && docker restart frontend)
+      when: inventory_hostname in groups['frontend']
+

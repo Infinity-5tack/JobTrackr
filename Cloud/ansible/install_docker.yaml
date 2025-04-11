@@ -1,0 +1,67 @@
+- name: Install Docker on Azure VMs
+  hosts: all
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Ensure python3 and dependencies are installed
+      raw: |
+        sudo apt update -y
+        sudo apt install -y python3 python3-apt
+      changed_when: false
+
+    - name: Update apt package list
+      apt:
+        update_cache: yes
+
+    - name: Install required packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Check if Docker GPG key is already added
+      stat:
+        path: /usr/share/keyrings/docker-archive-keyring.gpg
+      register: docker_gpg_key
+
+    - name: Add Docker’s official GPG key (if missing)
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      when: not docker_gpg_key.stat.exists
+
+    - name: Add Docker repository
+      shell: |
+        echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+    - name: Update apt package list again
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Add user to Docker group
+      user:
+        name: azureuser
+        groups: docker
+        append: yes
+
+    - name: Enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install MySQL Client on backend VMs
+      apt:
+        name: mysql-client
+        state: present
+      when: inventory_hostname in groups['backend']
+

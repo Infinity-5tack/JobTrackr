@@ -1,0 +1,71 @@
+name: Deploy Application via Ansible
+
+on:
+  repository_dispatch:
+    types: [ backend_image_pushed ]  # Triggered after backend image is pushed
+  workflow_dispatch: {}  # Allows manual triggering if needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Cloud Repository
+        uses: actions/checkout@v3
+
+      # í´¹ Setup SSH Key & Disable Host Key Checking
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.JOBTRACKER_VM_KEY }}" > ~/.ssh/jobtracker_vm_key
+          chmod 600 ~/.ssh/jobtracker_vm_key
+          echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" > ~/.ssh/config
+
+      # í´¹ Debug SSH Connection (Check if GitHub Actions Can Connect)
+      - name: Debug SSH Connection to Backend VM
+        run: ssh -i ~/.ssh/jobtracker_vm_key -o StrictHostKeyChecking=no azureuser@${{ secrets.BACKEND_VM_IP }} "echo 'Backend VM SSH Success'"
+
+      - name: Debug SSH Connection to Frontend VM
+        run: ssh -i ~/.ssh/jobtracker_vm_key -o StrictHostKeyChecking=no azureuser@${{ secrets.FRONTEND_VM_IP }} "echo 'Frontend VM SSH Success'"
+
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      - name: Set Environment Variables
+        run: |
+          echo "MYSQL_SERVER_FQDN=${{ secrets.MYSQL_SERVER_FQDN }}" >> $GITHUB_ENV
+          echo "DB_USER=${{ secrets.DB_USER }}" >> $GITHUB_ENV
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> $GITHUB_ENV
+          echo "ACR_LOGIN_SERVER=${{ secrets.ACR_LOGIN_SERVER }}" >> $GITHUB_ENV
+          echo "ACR_USERNAME=${{ secrets.ACR_USERNAME }}" >> $GITHUB_ENV
+          echo "ACR_PASSWORD=${{ secrets.ACR_PASSWORD }}" >> $GITHUB_ENV
+          echo "APP_KEY=${{ secrets.APP_KEY }}" >> $GITHUB_ENV
+          echo "JOOBLE_API_KEY=${{ secrets.JOOBLE_API_KEY }}" >> $GITHUB_ENV
+          echo "JOOBLE_HOST=${{ secrets.JOOBLE_HOST }}" >> $GITHUB_ENV
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+          echo "REACT_APP_SCRAPETABLE_API_KEY=${{ secrets.REACT_APP_SCRAPETABLE_API_KEY }}" >> $GITHUB_ENV
+
+      # í´¹ Ensure Correct Inventory File
+      - name: Display Ansible Inventory for Debugging
+        run: cat ansible/inventory.ini
+
+      # í´¹ Run Install Docker Playbook
+      - name: Run Install Docker Playbook
+        run: ansible-playbook -i ansible/inventory.ini ansible/install_docker.yaml
+
+      # í´¹ Run Deploy Containers Playbook
+      - name: Run Deploy Containers Playbook
+        run: |
+          ansible-playbook -i ansible/inventory.ini ansible/deploy_containers.yaml \
+            --extra-vars "MYSQL_SERVER_FQDN=${{ secrets.MYSQL_SERVER_FQDN }} \
+                          DB_USER=${{ secrets.DB_USER }} \
+                          DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+                          ACR_LOGIN_SERVER=${{ secrets.ACR_LOGIN_SERVER }} \
+                          ACR_USERNAME=${{ secrets.ACR_USERNAME }} \
+                          ACR_PASSWORD=${{ secrets.ACR_PASSWORD }} \
+                          APP_KEY=${{ secrets.APP_KEY }} \
+                          JOOBLE_API_KEY=${{ secrets.JOOBLE_API_KEY }} \
+                          JOOBLE_HOST=${{ secrets.JOOBLE_HOST }} \
+                          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+                          REACT_APP_SCRAPETABLE_API_KEY=${{ secrets.REACT_APP_SCRAPETABLE_API_KEY }}"

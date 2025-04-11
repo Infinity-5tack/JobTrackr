@@ -1,0 +1,26 @@
+# Terraform state files and backups
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# tfvars files (contain sensitive data)
+*.tfvars
+*.tfvars.json
+
+# Override files (local customizations, not to be version controlled)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform working directory and lock file
+.terraform/
+.terraform.lock.hcl
+
+# Sensitive SSH key files
+jobtracker_vm_key.pem
+jobtracker_vm_key.pub
+

@@ -1,0 +1,45 @@
+name: Build and Push Backend
+
+on:
+  repository_dispatch:
+    types: [frontend_image_pushed]  # Triggered by frontend repo
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Log in to ACR
+        run: |
+          echo "${{ secrets.ACR_PASSWORD }}" | docker login ${{ secrets.ACR_LOGIN_SERVER }} -u ${{ secrets.ACR_USERNAME }} --password-stdin
+
+      - name: Build Backend Docker Image
+        run: |
+          docker build -t jobtrack-backend:latest -f backend/apis/Dockerfile backend/apis/
+
+      - name: Tag Backend Docker Image
+        run: |
+          docker tag jobtrack-backend:latest ${{ secrets.ACR_LOGIN_SERVER }}/jobtrack-backend:latest
+
+      - name: Push Backend Image to ACR
+        run: |
+          docker push ${{ secrets.ACR_LOGIN_SERVER }}/jobtrack-backend:latest
+
+      - name: Verify Image Exists in ACR
+        run: |
+          az acr repository show-tags \
+          --name $(echo "${{ secrets.ACR_LOGIN_SERVER }}" | cut -d'.' -f1) \
+          --repository jobtrack-backend \
+          --username ${{ secrets.ACR_USERNAME }} \
+          --password ${{ secrets.ACR_PASSWORD }} \
+          --output table
+
+      - name: Trigger Cloud Repo Workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.PAT }}  # PAT with repo access to cloud repo
+          repository: Infinity-5tack/JobTrackr-on-cloud  # ✅ Fixed repo name
+          event-type: backend_image_pushed
